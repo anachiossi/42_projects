@@ -1,0 +1,24 @@
+# Compiled objects and binaries
+*.o
+*.a
+*.out
+a.out
+
+# Executables (no extension — add specific binary names as needed)
+# ft_hexdump
+# ft_cat
+# ft_tail
+
+# Valgrind
+vgcore.*
+
+# WSL Windows metadata
+*.Zone.Identifier
+
+# macOS
+.DS_Store
+
+# Editor artifacts
+*.swp
+*.swo
+*~
