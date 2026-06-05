@@ -2,6 +2,8 @@
 
 Manual tests for `get_next_line` — karaoke mode and stdin mode.
 
+📓 [Notion notes](https://square-green-2ba.notion.site/Get-Next-Line-37182782872c810194f7ffce6777f00c?source=copy_link)
+
 ---
 
 ## Files
