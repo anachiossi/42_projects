@@ -1,0 +1,13 @@
+# Compiled objects and archives
+objs/
+*.o
+*.a
+
+# Test binaries
+tests/karaoke
+tests/stdin
+tests/quiz
+
+# Editor and OS files
+.DS_Store
+*~
