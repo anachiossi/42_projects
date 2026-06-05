@@ -65,6 +65,6 @@ Put any music you want into `sing_along.txt`, change the titles to your new song
 ./tests/quiz
 ```
 
-Type the next lyric when prompted. `Ctrl+D` to quit.
+The game will compare the line you typed to the one of the lyrics. ;)
 
 ---
