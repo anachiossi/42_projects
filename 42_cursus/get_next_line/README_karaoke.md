@@ -1,4 +1,4 @@
-# 🎸 GNL Test Suite
+# 🎸 Get Next Line - The Stupid Test
 
 Manual tests for `get_next_line` — karaoke mode and stdin mode.
 
