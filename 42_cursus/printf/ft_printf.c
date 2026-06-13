@@ -12,16 +12,6 @@
 
 #include "ft_printf.h"
 
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
 int	ft_return_check(int ret_pad, int ret_write)
 {
 	if (ret_pad == -1 || ret_write == -1)

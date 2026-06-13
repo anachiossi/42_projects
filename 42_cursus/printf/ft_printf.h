@@ -45,11 +45,11 @@ typedef struct s_flags
 	int		precision;
 }			t_flags;
 // printf.c
+size_t		ft_strlen(const char *s);
 int			ft_printf(const char *format, ...);
 int			ft_handle_text(const char *format, int i);
 int			ft_handle_conversion(const char *format, int *i, va_list ap);
 int			ft_return_check(int ret_pad, int ret_write);
-size_t		ft_strlen(const char *s);
 // printf_parsers
 t_flags		ft_printf_parser(const char *format, int *i);
 t_flags		ft_parse_flags(const char *format, int *i, t_flags info);
