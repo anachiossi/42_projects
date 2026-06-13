@@ -39,10 +39,9 @@ int	ft_print_ptr_content(unsigned long nbr, int nbrlen,
 	ret_precision = ft_apply_precision(nbrlen, info);
 	if (ret_precision == -1)
 		return (-1);
+	ret_digits = 0;
 	if (nbrlen > 0)
 		ret_digits = ft_print_nbr_base(nbr, "0123456789abcdef", nbrlen);
-	if (nbrlen == 0)
-		ret_digits = 0;
 	return (ft_return_check(ret_digits, ret_prefix + ret_precision));
 }
 
@@ -84,6 +83,7 @@ int	ft_print_hex_content(unsigned long nbr, int nbrlen,
 	ret_precision = ft_apply_precision(nbrlen, info);
 	if (ret_precision == -1)
 		return (-1);
+	ret_digits = 0;
 	if (nbrlen > 0)
 	{
 		if (is_upper == 0)
@@ -91,8 +91,6 @@ int	ft_print_hex_content(unsigned long nbr, int nbrlen,
 		else
 			ret_digits = ft_print_nbr_base(nbr, "0123456789ABCDEF", nbrlen);
 	}
-	if (nbrlen == 0)
-		ret_digits = 0;
 	return (ft_return_check(ret_digits, ret_prefix + ret_precision));
 }
 

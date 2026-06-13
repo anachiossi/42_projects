@@ -7,7 +7,8 @@ SRCS	=	ft_printf.c \
 			ft_printf_numbers.c \
 			ft_printf_parsers.c \
 			ft_printf_pointers.c \
-			ft_printf_strings.c
+			ft_printf_strings.c \
+			ft_printf_float.c
 
 OBJS	= $(SRCS:.c=.o)
 

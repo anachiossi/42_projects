@@ -92,8 +92,8 @@ int	ft_dispatch(char specifier, t_flags info, va_list ap)
 		return (ft_print_hex(va_arg(ap, unsigned int), info, 0));
 	else if (specifier == 'X')
 		return (ft_print_hex(va_arg(ap, unsigned int), info, 1));
-	else if (specifier == 'a')
-		return (ft_print_custom(info));
+	else if (specifier == 'f')
+		return (ft_print_float(va_arg(ap, double), info));
 	else if (specifier == '%')
 		return (ft_print_char('%', info));
 	return (0);

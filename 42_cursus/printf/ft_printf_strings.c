@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf_string.c                                 :+:      :+:    :+:   */
+/*   ft_printf_strings.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anade-mo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 18:40:11 by anade-mo          #+#    #+#             */
-/*   Updated: 2026/05/30 14:39:12 by anade-mo         ###   ########.fr       */
+/*   Updated: 2026/06/13 13:59:27 by anade-mo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,10 @@ int	ft_print_char(int c, t_flags info)
 	return (ft_putchar_count(c));
 }
 
-int ft_print_custom (t_flags info)
-{
-	char * custom;
-
-	custom = "Ana";
-	return (ft_print_str(custom, info));
-}
+// int	ft_print_custom(t_flags info)
+// {
+// 	char	*custom;
+//
+// 	custom = "Ana";
+// 	return (ft_print_str(custom, info));
+// }

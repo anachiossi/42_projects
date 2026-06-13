@@ -6,7 +6,7 @@
 /*   By: anade-mo <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 12:13:05 by anade-mo          #+#    #+#             */
-/*   Updated: 2026/06/02 16:41:09 by anade-mo         ###   ########.fr       */
+/*   Updated: 2026/06/13 13:59:10 by anade-mo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,4 @@ int	ft_printf(const char *format, ...)
 		i++;
 	}
 	return (va_end(ap), total);
-}
-
-int main (void)
-{
-	ft_printf("%a\n");
-	return (0);
 }

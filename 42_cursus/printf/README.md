@@ -11,22 +11,17 @@
 ```
 ft_printf/
 │
-├── libft/                      ← copy of libft (sources + Makefile)
-│   ├── Makefile
-│   ├── libft.h
-│   └── ft_*.c
-│
 ├── ft_printf.c                 ← main loop + va_list lifecycle
-├── ft_printf_parsers.c         ← flag/width/precision parser
+├── ft_printf_parsers.c         ← flag/width/precision parser + dispatch
 ├── ft_printf_strings.c         ← %c and %s handlers
-├── ft_printf_numbers.c         ← %d, %i, %u, %x, %X handlers
-├── ft_printf_pointers.c        ← %p handler
-├── ft_printf_flags.c           ← flag apply helpers
-├── ft_printf_helpers.c         ← putchar, pad, return check
+├── ft_printf_numbers.c         ← %d, %i, %u handlers
+├── ft_printf_pointers.c        ← %p, %x, %X handlers
+├── ft_printf_flags.c           ← padding, sign, prefix helpers
+├── ft_printf_float.c           ← %f handler
 │
 ├── ft_printf.h                 ← t_flags struct + all prototypes
-├── Makefile                    ← builds libft first, then ft_printf
-└── README_printf.md
+├── Makefile                    ← builds libftprintf.a
+└── README.md
 ```
 
 ---
@@ -44,7 +39,7 @@ ft_printf(fmt, ...)
 │   │
 │   └── '%' found
 │       │
-│       ├── ft_printf_parser.c
+│       ├── ft_printf_parsers.c
 │       │   ├── ft_parse_flags     { '-', '0', '#', '+', ' ' }
 │       │   ├── ft_parse_width     { digits }
 │       │   └── ft_parse_precision { '.' then digits }
@@ -60,6 +55,7 @@ ft_printf(fmt, ...)
 │           ├── %x  → ft_print_hex(is_upper = false)
 │           ├── %X  → ft_print_hex(is_upper = true)
 │           ├── %p  → ft_print_ptr
+│           ├── %f  → ft_print_float
 │           └── %%  → ft_print_char('%')
 │               │
 │               └── every handler returns:
@@ -73,16 +69,16 @@ ft_printf(fmt, ...)
 
 ---
 
-
 ## Instructions
 
 ```
-make        → builds libft/ first, then libftprintf.a
+make        → builds libftprintf.a
 make clean  → removes .o files
 make fclean → removes .o files + libftprintf.a
 make re     → fclean + make (full rebuild)
-make bonus  → same as all (bonus functions integrated)
+make bonus  → same as all
 ```
+
 ---
 
 ## The Norm 
@@ -90,10 +86,9 @@ make bonus  → same as all (bonus functions integrated)
 42's style enforcer. A norm error anywhere → grade is 0.
 
 - No `for`, no `do-while`, no `switch`, no ternary (`? :`)
-- Max 25 lines per function, max 5 variables, max 4 parameters
+- Max 25 lines per function, max 4 parameters
 - Max 5 functions per `.c` file
 - `return (value);` — parentheses are mandatory
-
 
 ---
 
@@ -102,7 +97,6 @@ make bonus  → same as all (bonus functions integrated)
 ### Setup
 
 ```bash
-# clone the tester inside your printf repo (not submitted)
 cd ft_printf/
 git clone https://github.com/Tripouille/printfTester printfTester
 cd printfTester
@@ -111,9 +105,6 @@ cd printfTester
 ### Running tests
 
 ```bash
-# from inside others/printfTester/
-
-# mandatory tests
 make m          # all mandatory
 make c          # %c only
 make s          # %s only
@@ -133,10 +124,6 @@ make dot        # '.' precision
 make sharp      # '#' flag
 make space      # ' ' flag
 make +          # '+' flag
-
-# run a specific test number
-make d 15
-make 0 23
 ```
 
 ---
@@ -164,4 +151,4 @@ https://square-green-2ba.notion.site/Printf-36c82782872c809c9e0add6f68fffbbb
 
 ### AI usage
 
-AI was used as a support tool for organization (using app Notion), planning, concept clarification, code review and README drafts. 
+AI was used as a support tool for organization (using app Notion), planning, concept clarification, code review and README drafts.
