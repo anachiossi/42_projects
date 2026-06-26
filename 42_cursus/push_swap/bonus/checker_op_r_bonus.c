@@ -1,0 +1,37 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   checker_op_r_bonus.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anade-mo <anade-mo@student.42roma.it>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/11 13:58:00 by anade-mo          #+#    #+#             */
+/*   Updated: 2026/06/21 23:42:30 by anade-mo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "checker_bonus.h"
+
+void	ckr_ra(t_stack *a, t_stack *b, t_op_count *c)
+{
+	(void)b;
+	r(a);
+	c->ra++;
+	c->total++;
+}
+
+void	ckr_rb(t_stack *a, t_stack *b, t_op_count *c)
+{
+	(void)a;
+	r(b);
+	c->rb++;
+	c->total++;
+}
+
+void	ckr_rr(t_stack *a, t_stack *b, t_op_count *c)
+{
+	r(a);
+	r(b);
+	c->rr++;
+	c->total++;
+}
