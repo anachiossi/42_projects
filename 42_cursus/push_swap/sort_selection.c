@@ -6,7 +6,7 @@
 /*   By: anade-mo <anade-mo <marvin@42.fr>>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 19:48:54 by anade-mo          #+#    #+#             */
-/*   Updated: 2026/06/26 15:00:31 by anade-mo         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:14:41 by anade-mo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	sort_3(t_stack *a)
 	if (top < mid && mid < bot)
 		return ;
 	if (top > mid && top > bot && mid < bot)
-		ra(bench, a);
+		ra(a);
 	else if (top > mid && top > bot && mid > bot)
 	{
 		sa(a);

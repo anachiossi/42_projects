@@ -6,7 +6,7 @@
 /*   By: anade-mo <anade-mo <marvin@42.fr>>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/10 18:29:22 by gsantoni          #+#    #+#             */
-/*   Updated: 2026/06/26 15:02:21 by anade-mo         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:14:13 by anade-mo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,7 @@ void				rrr(t_stack *a, t_stack *b);
 int					is_sorted(t_stack *a);
 float				disorder(t_stack *h);
 void				dispatcher(t_stack *a, t_stack *b, t_ps_flags f, float d);
-void				adaptive_sort(t_stack *a, t_stack *b,
-						t_ps_flags f, float d);
+void				adaptive_sort(t_stack *a, t_stack *b, float d);
 
 // sorting simple - sort_selection.c
 void				sort_2(t_stack *a);
