@@ -1,0 +1,13 @@
+cosmos_env/
+venv/
+.venv/
+
+__pycache__/
+*.pyc
+.mypy_cache/
+
+data_generator.tar
+data_generator.py
+data_exporter.py
+generated_data/
+
