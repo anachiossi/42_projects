@@ -1,0 +1,1376 @@
+py05 trace - 2026-08-16 19:13:07
+filter: <none>
+
+=== Numeric - validate ===
+    ok   validate(42)
+          got  True
+          want True
+    ok   validate(-1)
+          got  True
+          want True
+    ok   validate(0)
+          got  True
+          want True
+    ok   validate(3.14)
+          got  True
+          want True
+    ok   validate(-2.5)
+          got  True
+          want True
+    ok   validate(255)
+          got  True
+          want True
+    ok   validate(1e+308)
+          got  True
+          want True
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(False)
+          got  False
+          want False
+    ok   validate('42')
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate('')
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate((1+2j))
+          got  False
+          want False
+    ok   validate([1, 2, 3])
+          got  True
+          want True
+    ok   validate([1, 2.5, -3])
+          got  True
+          want True
+    ok   validate([0])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([1, 'foo'])
+          got  False
+          want False
+    ok   validate([True])
+          got  False
+          want False
+    ok   validate([[1, 2]])
+          got  False
+          want False
+    ok   validate((1, 2))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+    ok   validate({1, 2})
+          got  False
+          want False
+
+=== Text - validate ===
+    ok   validate('Hello')
+          got  True
+          want True
+    ok   validate('')
+          got  True
+          want True
+    ok   validate('42')
+          got  True
+          want True
+    ok   validate('a\x00b')
+          got  True
+          want True
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(3.14)
+          got  False
+          want False
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate(['a', 'b'])
+          got  True
+          want True
+    ok   validate([''])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate(['a', 42])
+          got  False
+          want False
+    ok   validate([['a']])
+          got  False
+          want False
+    ok   validate(('a',))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+
+=== Log - validate ===
+    ok   validate({'log_level': 'INFO', 'log_message': 'System ready'})
+          got  True
+          want True
+    ok   validate({'a': 'b'})
+          got  True
+          want True
+    ok   validate({})
+          got  False
+          want False
+    ok   validate({'a': 1})
+          got  False
+          want False
+    ok   validate({1: 'a'})
+          got  False
+          want False
+    ok   validate([{'a': 'b'}])
+          got  True
+          want True
+    ok   validate([{'a': 'b'}, {'c': 'd'}])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([{}])
+          got  False
+          want False
+    ok   validate([{'a': 'b'}, 'x'])
+          got  False
+          want False
+    ok   validate([[{'a': 'b'}]])
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+
+=== Numeric - ingest & store ===
+    ok   batch stored as strings
+          got  [(0, '1'), (1, '2.5'), (2, '-3')]
+          want [(0, '1'), (1, '2.5'), (2, '-3')]
+    ok   rank continues across calls
+          got  (3, '7')
+          want (3, '7')
+    ok   hex literal stores decimal
+          got  [(0, '255')]
+          want [(0, '255')]
+
+=== Text - ingest & store ===
+    ok   single str is ONE item
+          got  [(0, 'Hello')]
+          want [(0, 'Hello')]
+    ok   batch appends in order
+          got  [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+          want [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+
+=== Log - ingest & store ===
+    ok   values joined, keys discarded
+          got  [(0, 'NOTICE: Connection to server')]
+          want [(0, 'NOTICE: Connection to server')]
+    ok   batch of dicts
+          got  [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+          want [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+
+=== Atomicity - a failed ingest changes nothing ===
+    ok   NumericProcessor: bad batch raises
+          got  True
+          want True
+    ok   NumericProcessor: store unchanged
+          got  [(0, '10'), (1, '20')]
+          want [(0, '10'), (1, '20')]
+    ok   NumericProcessor: index unchanged
+          got  2
+          want 2
+    ok   TextProcessor: bad batch raises
+          got  True
+          want True
+    ok   TextProcessor: store unchanged
+          got  [(0, 'a'), (1, 'b')]
+          want [(0, 'a'), (1, 'b')]
+    ok   TextProcessor: index unchanged
+          got  2
+          want 2
+    ok   LogProcessor: bad batch raises
+          got  True
+          want True
+    ok   LogProcessor: store unchanged
+          got  [(0, 'v')]
+          want [(0, 'v')]
+    ok   LogProcessor: index unchanged
+          got  1
+          want 1
+
+=== Base - output() and ranks ===
+    ok   output() returns oldest first
+          got  (0, 'a')
+          want (0, 'a')
+    ok   output() removes it
+          got  2
+          want 2
+    ok   then the next oldest
+          got  (1, 'b')
+          want (1, 'b')
+    ok   index does NOT rewind
+          got  3
+          want 3
+    ok   empty store raises
+          got  True
+          want True
+
+=== Base - abstract contract ===
+    ok   DataProcessor cannot be instantiated
+          got  True
+          want True
+    ok   NumericProcessor.name is a str
+          got  True
+          want True
+    ok   NumericProcessor.label is a str
+          got  True
+          want True
+    ok   NumericProcessor.output is callable
+          got  True
+          want True
+    ok   TextProcessor.name is a str
+          got  True
+          want True
+    ok   TextProcessor.label is a str
+          got  True
+          want True
+    ok   TextProcessor.output is callable
+          got  True
+          want True
+    ok   LogProcessor.name is a str
+          got  True
+          want True
+    ok   LogProcessor.label is a str
+          got  True
+          want True
+    ok   LogProcessor.output is callable
+          got  True
+          want True
+
+=== Routing - exactly one processor claims each value ===
+    ok   42 claimed by exactly one
+          got  1
+          want 1
+    ok   3.14 claimed by exactly one
+          got  1
+          want 1
+    ok   'Hello' claimed by exactly one
+          got  1
+          want 1
+    ok   '42' claimed by exactly one
+          got  1
+          want 1
+    ok   '' claimed by exactly one
+          got  1
+          want 1
+    ok   {'log_level': 'a', 'log_message': 'b'} claimed by exactly one
+          got  1
+          want 1
+    ok   [1, 2] claimed by exactly one
+          got  1
+          want 1
+    ok   ['a', 'b'] claimed by exactly one
+          got  1
+          want 1
+    ok   [{'a': 'b'}] claimed by exactly one
+          got  1
+          want 1
+    ok   None claimed by none
+          got  0
+          want 0
+    ok   [] claimed by none
+          got  0
+          want 0
+    ok   {} claimed by none
+          got  0
+          want 0
+    ok   (1, 2) claimed by none
+          got  0
+          want 0
+    ok   [1, 'a'] claimed by none
+          got  0
+          want 0
+    ok   True claimed by none
+          got  0
+          want 0
+
+=== Program data_processor - exact match with the subject example ===
+    ok   line count
+          got  25
+          want 25
+    ok   line 1
+          got  '=== Code Nexus - Data Processor ==='
+          want '=== Code Nexus - Data Processor ==='
+    ok   line 2
+          got  ''
+          want ''
+    ok   line 3
+          got  'Testing Numeric Processor...'
+          want 'Testing Numeric Processor...'
+    ok   line 4
+          got  " Trying to validate input '42': True"
+          want " Trying to validate input '42': True"
+    ok   line 5
+          got  " Trying to validate input 'Hello': False"
+          want " Trying to validate input 'Hello': False"
+    ok   line 6
+          got  " Test invalid ingestion of string 'foo' without prior validation:"
+          want " Test invalid ingestion of string 'foo' without prior validation:"
+    ok   line 7
+          got  ' Got exception: Improper numeric data'
+          want ' Got exception: Improper numeric data'
+    ok   line 8
+          got  ' Processing data: [1, 2, 3, 4, 5]'
+          want ' Processing data: [1, 2, 3, 4, 5]'
+    ok   line 9
+          got  ' Extracting 3 values...'
+          want ' Extracting 3 values...'
+    ok   line 10
+          got  ' Numeric value 0: 1'
+          want ' Numeric value 0: 1'
+    ok   line 11
+          got  ' Numeric value 1: 2'
+          want ' Numeric value 1: 2'
+    ok   line 12
+          got  ' Numeric value 2: 3'
+          want ' Numeric value 2: 3'
+    ok   line 13
+          got  ''
+          want ''
+    ok   line 14
+          got  'Testing Text Processor...'
+          want 'Testing Text Processor...'
+    ok   line 15
+          got  " Trying to validate input '42': False"
+          want " Trying to validate input '42': False"
+    ok   line 16
+          got  " Processing data: ['Hello', 'Nexus', 'World']"
+          want " Processing data: ['Hello', 'Nexus', 'World']"
+    ok   line 17
+          got  ' Extracting 1 value...'
+          want ' Extracting 1 value...'
+    ok   line 18
+          got  ' Text value 0: Hello'
+          want ' Text value 0: Hello'
+    ok   line 19
+          got  ''
+          want ''
+    ok   line 20
+          got  'Testing Log Processor...'
+          want 'Testing Log Processor...'
+    ok   line 21
+          got  " Trying to validate input 'Hello': False"
+          want " Trying to validate input 'Hello': False"
+    ok   line 22
+          got  " Processing data: [{'log_level': 'NOTICE', 'log_message': 'Connection to server'}, {'log_level': 'ERROR', 'log_message': 'Unauthorized access!!'}]"
+          want " Processing data: [{'log_level': 'NOTICE', 'log_message': 'Connection to server'}, {'log_level': 'ERROR', 'log_message': 'Unauthorized access!!'}]"
+    ok   line 23
+          got  ' Extracting 2 values...'
+          want ' Extracting 2 values...'
+    ok   line 24
+          got  ' Log entry 0: NOTICE: Connection to server'
+          want ' Log entry 0: NOTICE: Connection to server'
+    ok   line 25
+          got  ' Log entry 1: ERROR: Unauthorized access!!'
+          want ' Log entry 1: ERROR: Unauthorized access!!'
+
+=== Numeric - validate ===
+    ok   validate(42)
+          got  True
+          want True
+    ok   validate(-1)
+          got  True
+          want True
+    ok   validate(0)
+          got  True
+          want True
+    ok   validate(3.14)
+          got  True
+          want True
+    ok   validate(-2.5)
+          got  True
+          want True
+    ok   validate(255)
+          got  True
+          want True
+    ok   validate(1e+308)
+          got  True
+          want True
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(False)
+          got  False
+          want False
+    ok   validate('42')
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate('')
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate((1+2j))
+          got  False
+          want False
+    ok   validate([1, 2, 3])
+          got  True
+          want True
+    ok   validate([1, 2.5, -3])
+          got  True
+          want True
+    ok   validate([0])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([1, 'foo'])
+          got  False
+          want False
+    ok   validate([True])
+          got  False
+          want False
+    ok   validate([[1, 2]])
+          got  False
+          want False
+    ok   validate((1, 2))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+    ok   validate({1, 2})
+          got  False
+          want False
+
+=== Text - validate ===
+    ok   validate('Hello')
+          got  True
+          want True
+    ok   validate('')
+          got  True
+          want True
+    ok   validate('42')
+          got  True
+          want True
+    ok   validate('a\x00b')
+          got  True
+          want True
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(3.14)
+          got  False
+          want False
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate(['a', 'b'])
+          got  True
+          want True
+    ok   validate([''])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate(['a', 42])
+          got  False
+          want False
+    ok   validate([['a']])
+          got  False
+          want False
+    ok   validate(('a',))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+
+=== Log - validate ===
+    ok   validate({'log_level': 'INFO', 'log_message': 'System ready'})
+          got  True
+          want True
+    ok   validate({'a': 'b'})
+          got  True
+          want True
+    ok   validate({})
+          got  False
+          want False
+    ok   validate({'a': 1})
+          got  False
+          want False
+    ok   validate({1: 'a'})
+          got  False
+          want False
+    ok   validate([{'a': 'b'}])
+          got  True
+          want True
+    ok   validate([{'a': 'b'}, {'c': 'd'}])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([{}])
+          got  False
+          want False
+    ok   validate([{'a': 'b'}, 'x'])
+          got  False
+          want False
+    ok   validate([[{'a': 'b'}]])
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+
+=== Numeric - ingest & store ===
+    ok   batch stored as strings
+          got  [(0, '1'), (1, '2.5'), (2, '-3')]
+          want [(0, '1'), (1, '2.5'), (2, '-3')]
+    ok   rank continues across calls
+          got  (3, '7')
+          want (3, '7')
+    ok   hex literal stores decimal
+          got  [(0, '255')]
+          want [(0, '255')]
+
+=== Text - ingest & store ===
+    ok   single str is ONE item
+          got  [(0, 'Hello')]
+          want [(0, 'Hello')]
+    ok   batch appends in order
+          got  [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+          want [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+
+=== Log - ingest & store ===
+    ok   values joined, keys discarded
+          got  [(0, 'NOTICE: Connection to server')]
+          want [(0, 'NOTICE: Connection to server')]
+    ok   batch of dicts
+          got  [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+          want [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+
+=== Atomicity - a failed ingest changes nothing ===
+    ok   NumericProcessor: bad batch raises
+          got  True
+          want True
+    ok   NumericProcessor: store unchanged
+          got  [(0, '10'), (1, '20')]
+          want [(0, '10'), (1, '20')]
+    ok   NumericProcessor: index unchanged
+          got  2
+          want 2
+    ok   TextProcessor: bad batch raises
+          got  True
+          want True
+    ok   TextProcessor: store unchanged
+          got  [(0, 'a'), (1, 'b')]
+          want [(0, 'a'), (1, 'b')]
+    ok   TextProcessor: index unchanged
+          got  2
+          want 2
+    ok   LogProcessor: bad batch raises
+          got  True
+          want True
+    ok   LogProcessor: store unchanged
+          got  [(0, 'v')]
+          want [(0, 'v')]
+    ok   LogProcessor: index unchanged
+          got  1
+          want 1
+
+=== Base - output() and ranks ===
+    ok   output() returns oldest first
+          got  (0, 'a')
+          want (0, 'a')
+    ok   output() removes it
+          got  2
+          want 2
+    ok   then the next oldest
+          got  (1, 'b')
+          want (1, 'b')
+    ok   index does NOT rewind
+          got  3
+          want 3
+    ok   empty store raises
+          got  True
+          want True
+
+=== Base - abstract contract ===
+    ok   DataProcessor cannot be instantiated
+          got  True
+          want True
+    ok   NumericProcessor.name is a str
+          got  True
+          want True
+    ok   NumericProcessor.label is a str
+          got  True
+          want True
+    ok   NumericProcessor.output is callable
+          got  True
+          want True
+    ok   TextProcessor.name is a str
+          got  True
+          want True
+    ok   TextProcessor.label is a str
+          got  True
+          want True
+    ok   TextProcessor.output is callable
+          got  True
+          want True
+    ok   LogProcessor.name is a str
+          got  True
+          want True
+    ok   LogProcessor.label is a str
+          got  True
+          want True
+    ok   LogProcessor.output is callable
+          got  True
+          want True
+
+=== Routing - exactly one processor claims each value ===
+    ok   42 claimed by exactly one
+          got  1
+          want 1
+    ok   3.14 claimed by exactly one
+          got  1
+          want 1
+    ok   'Hello' claimed by exactly one
+          got  1
+          want 1
+    ok   '42' claimed by exactly one
+          got  1
+          want 1
+    ok   '' claimed by exactly one
+          got  1
+          want 1
+    ok   {'log_level': 'a', 'log_message': 'b'} claimed by exactly one
+          got  1
+          want 1
+    ok   [1, 2] claimed by exactly one
+          got  1
+          want 1
+    ok   ['a', 'b'] claimed by exactly one
+          got  1
+          want 1
+    ok   [{'a': 'b'}] claimed by exactly one
+          got  1
+          want 1
+    ok   None claimed by none
+          got  0
+          want 0
+    ok   [] claimed by none
+          got  0
+          want 0
+    ok   {} claimed by none
+          got  0
+          want 0
+    ok   (1, 2) claimed by none
+          got  0
+          want 0
+    ok   [1, 'a'] claimed by none
+          got  0
+          want 0
+    ok   True claimed by none
+          got  0
+          want 0
+
+=== DataStream - registration and stats ===
+    ok   empty stream reports no processor
+          got  ['== DataStream statistics ==', 'No processor found, no data']
+          want ['== DataStream statistics ==', 'No processor found, no data']
+    ok   one processor, nothing ingested
+          got  'Numeric Processor: total 0 items processed, remaining 0 on processor'
+          want 'Numeric Processor: total 0 items processed, remaining 0 on processor'
+
+=== DataStream - routing an unroutable element ===
+    ok   one error line per unroutable element
+          got  2
+          want 2
+    ok   error format
+          got  "DataStream error - Can't process element in stream: Hello world"
+          want "DataStream error - Can't process element in stream: Hello world"
+    ok   routable element still ingested
+          got  [(0, '42')]
+          want [(0, '42')]
+
+=== DataStream - total vs remaining ===
+    ok   consuming lowers remaining, not total
+          got  'Numeric Processor: total 4 items processed, remaining 3 on processor'
+          want 'Numeric Processor: total 4 items processed, remaining 3 on processor'
+
+=== Program data_stream - exact match with the subject example ===
+    ok   line count
+          got  27
+          want 27
+    ok   line 1
+          got  '=== Code Nexus - Data Stream ==='
+          want '=== Code Nexus - Data Stream ==='
+    ok   line 2
+          got  ''
+          want ''
+    ok   line 3
+          got  'Initialize Data Stream...'
+          want 'Initialize Data Stream...'
+    ok   line 4
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 5
+          got  'No processor found, no data'
+          want 'No processor found, no data'
+    ok   line 6
+          got  ''
+          want ''
+    ok   line 7
+          got  'Registering Numeric Processor'
+          want 'Registering Numeric Processor'
+    ok   line 8
+          got  ''
+          want ''
+    ok   line 9
+          got  "Send first batch of data on stream: ['Hello world', [3.14, -1, 2.71], [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}], 42, ['Hi', 'five']]"
+          want "Send first batch of data on stream: ['Hello world', [3.14, -1, 2.71], [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}], 42, ['Hi', 'five']]"
+    ok   line 10
+          got  "DataStream error - Can't process element in stream: Hello world"
+          want "DataStream error - Can't process element in stream: Hello world"
+    ok   line 11
+          got  "DataStream error - Can't process element in stream: [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}]"
+          want "DataStream error - Can't process element in stream: [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}]"
+    ok   line 12
+          got  "DataStream error - Can't process element in stream: ['Hi', 'five']"
+          want "DataStream error - Can't process element in stream: ['Hi', 'five']"
+    ok   line 13
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 14
+          got  'Numeric Processor: total 4 items processed, remaining 4 on processor'
+          want 'Numeric Processor: total 4 items processed, remaining 4 on processor'
+    ok   line 15
+          got  ''
+          want ''
+    ok   line 16
+          got  'Registering other data processors'
+          want 'Registering other data processors'
+    ok   line 17
+          got  'Send the same batch again'
+          want 'Send the same batch again'
+    ok   line 18
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 19
+          got  'Numeric Processor: total 8 items processed, remaining 8 on processor'
+          want 'Numeric Processor: total 8 items processed, remaining 8 on processor'
+    ok   line 20
+          got  'Text Processor: total 3 items processed, remaining 3 on processor'
+          want 'Text Processor: total 3 items processed, remaining 3 on processor'
+    ok   line 21
+          got  'Log Processor: total 2 items processed, remaining 2 on processor'
+          want 'Log Processor: total 2 items processed, remaining 2 on processor'
+    ok   line 22
+          got  ''
+          want ''
+    ok   line 23
+          got  'Consume some elements from the data processors: Numeric 3, Text 2, Log 1'
+          want 'Consume some elements from the data processors: Numeric 3, Text 2, Log 1'
+    ok   line 24
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 25
+          got  'Numeric Processor: total 8 items processed, remaining 5 on processor'
+          want 'Numeric Processor: total 8 items processed, remaining 5 on processor'
+    ok   line 26
+          got  'Text Processor: total 3 items processed, remaining 1 on processor'
+          want 'Text Processor: total 3 items processed, remaining 1 on processor'
+    ok   line 27
+          got  'Log Processor: total 2 items processed, remaining 1 on processor'
+          want 'Log Processor: total 2 items processed, remaining 1 on processor'
+
+=== Numeric - validate ===
+    ok   validate(42)
+          got  True
+          want True
+    ok   validate(-1)
+          got  True
+          want True
+    ok   validate(0)
+          got  True
+          want True
+    ok   validate(3.14)
+          got  True
+          want True
+    ok   validate(-2.5)
+          got  True
+          want True
+    ok   validate(255)
+          got  True
+          want True
+    ok   validate(1e+308)
+          got  True
+          want True
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(False)
+          got  False
+          want False
+    ok   validate('42')
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate('')
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate((1+2j))
+          got  False
+          want False
+    ok   validate([1, 2, 3])
+          got  True
+          want True
+    ok   validate([1, 2.5, -3])
+          got  True
+          want True
+    ok   validate([0])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([1, 'foo'])
+          got  False
+          want False
+    ok   validate([True])
+          got  False
+          want False
+    ok   validate([[1, 2]])
+          got  False
+          want False
+    ok   validate((1, 2))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+    ok   validate({1, 2})
+          got  False
+          want False
+
+=== Text - validate ===
+    ok   validate('Hello')
+          got  True
+          want True
+    ok   validate('')
+          got  True
+          want True
+    ok   validate('42')
+          got  True
+          want True
+    ok   validate('a\x00b')
+          got  True
+          want True
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(3.14)
+          got  False
+          want False
+    ok   validate(True)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+    ok   validate(['a', 'b'])
+          got  True
+          want True
+    ok   validate([''])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate(['a', 42])
+          got  False
+          want False
+    ok   validate([['a']])
+          got  False
+          want False
+    ok   validate(('a',))
+          got  False
+          want False
+    ok   validate({'a': 'b'})
+          got  False
+          want False
+
+=== Log - validate ===
+    ok   validate({'log_level': 'INFO', 'log_message': 'System ready'})
+          got  True
+          want True
+    ok   validate({'a': 'b'})
+          got  True
+          want True
+    ok   validate({})
+          got  False
+          want False
+    ok   validate({'a': 1})
+          got  False
+          want False
+    ok   validate({1: 'a'})
+          got  False
+          want False
+    ok   validate([{'a': 'b'}])
+          got  True
+          want True
+    ok   validate([{'a': 'b'}, {'c': 'd'}])
+          got  True
+          want True
+    ok   validate([])
+          got  False
+          want False
+    ok   validate([{}])
+          got  False
+          want False
+    ok   validate([{'a': 'b'}, 'x'])
+          got  False
+          want False
+    ok   validate([[{'a': 'b'}]])
+          got  False
+          want False
+    ok   validate('Hello')
+          got  False
+          want False
+    ok   validate(42)
+          got  False
+          want False
+    ok   validate(None)
+          got  False
+          want False
+
+=== Numeric - ingest & store ===
+    ok   batch stored as strings
+          got  [(0, '1'), (1, '2.5'), (2, '-3')]
+          want [(0, '1'), (1, '2.5'), (2, '-3')]
+    ok   rank continues across calls
+          got  (3, '7')
+          want (3, '7')
+    ok   hex literal stores decimal
+          got  [(0, '255')]
+          want [(0, '255')]
+
+=== Text - ingest & store ===
+    ok   single str is ONE item
+          got  [(0, 'Hello')]
+          want [(0, 'Hello')]
+    ok   batch appends in order
+          got  [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+          want [(0, 'Hello'), (1, 'Nexus'), (2, 'World')]
+
+=== Log - ingest & store ===
+    ok   values joined, keys discarded
+          got  [(0, 'NOTICE: Connection to server')]
+          want [(0, 'NOTICE: Connection to server')]
+    ok   batch of dicts
+          got  [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+          want [(0, 'NOTICE: Connection to server'), (1, 'ERROR: Unauthorized access!!')]
+
+=== Atomicity - a failed ingest changes nothing ===
+    ok   NumericProcessor: bad batch raises
+          got  True
+          want True
+    ok   NumericProcessor: store unchanged
+          got  [(0, '10'), (1, '20')]
+          want [(0, '10'), (1, '20')]
+    ok   NumericProcessor: index unchanged
+          got  2
+          want 2
+    ok   TextProcessor: bad batch raises
+          got  True
+          want True
+    ok   TextProcessor: store unchanged
+          got  [(0, 'a'), (1, 'b')]
+          want [(0, 'a'), (1, 'b')]
+    ok   TextProcessor: index unchanged
+          got  2
+          want 2
+    ok   LogProcessor: bad batch raises
+          got  True
+          want True
+    ok   LogProcessor: store unchanged
+          got  [(0, 'v')]
+          want [(0, 'v')]
+    ok   LogProcessor: index unchanged
+          got  1
+          want 1
+
+=== Base - output() and ranks ===
+    ok   output() returns oldest first
+          got  (0, 'a')
+          want (0, 'a')
+    ok   output() removes it
+          got  2
+          want 2
+    ok   then the next oldest
+          got  (1, 'b')
+          want (1, 'b')
+    ok   index does NOT rewind
+          got  3
+          want 3
+    ok   empty store raises
+          got  True
+          want True
+
+=== Base - abstract contract ===
+    ok   DataProcessor cannot be instantiated
+          got  True
+          want True
+    ok   NumericProcessor.name is a str
+          got  True
+          want True
+    ok   NumericProcessor.label is a str
+          got  True
+          want True
+    ok   NumericProcessor.output is callable
+          got  True
+          want True
+    ok   TextProcessor.name is a str
+          got  True
+          want True
+    ok   TextProcessor.label is a str
+          got  True
+          want True
+    ok   TextProcessor.output is callable
+          got  True
+          want True
+    ok   LogProcessor.name is a str
+          got  True
+          want True
+    ok   LogProcessor.label is a str
+          got  True
+          want True
+    ok   LogProcessor.output is callable
+          got  True
+          want True
+
+=== Routing - exactly one processor claims each value ===
+    ok   42 claimed by exactly one
+          got  1
+          want 1
+    ok   3.14 claimed by exactly one
+          got  1
+          want 1
+    ok   'Hello' claimed by exactly one
+          got  1
+          want 1
+    ok   '42' claimed by exactly one
+          got  1
+          want 1
+    ok   '' claimed by exactly one
+          got  1
+          want 1
+    ok   {'log_level': 'a', 'log_message': 'b'} claimed by exactly one
+          got  1
+          want 1
+    ok   [1, 2] claimed by exactly one
+          got  1
+          want 1
+    ok   ['a', 'b'] claimed by exactly one
+          got  1
+          want 1
+    ok   [{'a': 'b'}] claimed by exactly one
+          got  1
+          want 1
+    ok   None claimed by none
+          got  0
+          want 0
+    ok   [] claimed by none
+          got  0
+          want 0
+    ok   {} claimed by none
+          got  0
+          want 0
+    ok   (1, 2) claimed by none
+          got  0
+          want 0
+    ok   [1, 'a'] claimed by none
+          got  0
+          want 0
+    ok   True claimed by none
+          got  0
+          want 0
+
+=== DataStream - registration and stats ===
+    ok   empty stream reports no processor
+          got  ['== DataStream statistics ==', 'No processor found, no data']
+          want ['== DataStream statistics ==', 'No processor found, no data']
+    ok   one processor, nothing ingested
+          got  'Numeric Processor: total 0 items processed, remaining 0 on processor'
+          want 'Numeric Processor: total 0 items processed, remaining 0 on processor'
+
+=== DataStream - routing an unroutable element ===
+    ok   one error line per unroutable element
+          got  2
+          want 2
+    ok   error format
+          got  "DataStream error - Can't process element in stream: Hello world"
+          want "DataStream error - Can't process element in stream: Hello world"
+    ok   routable element still ingested
+          got  [(0, '42')]
+          want [(0, '42')]
+
+=== DataStream - total vs remaining ===
+    ok   consuming lowers remaining, not total
+          got  'Numeric Processor: total 4 items processed, remaining 3 on processor'
+          want 'Numeric Processor: total 4 items processed, remaining 3 on processor'
+
+=== Plugins - CSV format ===
+    ok   header, then values comma-joined with no spaces
+          got  ['CSV Output:', '3.14,-1,2.71']
+          want ['CSV Output:', '3.14,-1,2.71']
+    ok   ranks are not exported
+          got  ['CSV Output:', 'a,b']
+          want ['CSV Output:', 'a,b']
+
+=== Plugins - JSON format ===
+    ok   item_<rank> keys, quoted values, ', ' between pairs
+          got  ['JSON Output:', '{"item_3": "42", "item_4": "21"}']
+          want ['JSON Output:', '{"item_3": "42", "item_4": "21"}']
+    ok   empty batch is still a valid object
+          got  ['JSON Output:', '{}']
+          want ['JSON Output:', '{}']
+
+=== Plugins - duck typing, not inheritance ===
+    ok   CSVPlugin does not subclass ExportPlugin
+          got  False
+          want False
+    ok   CSVPlugin.name is a str
+          got  True
+          want True
+    ok   CSVPlugin.process_output is callable
+          got  True
+          want True
+    ok   JSONPlugin does not subclass ExportPlugin
+          got  False
+          want False
+    ok   JSONPlugin.name is a str
+          got  True
+          want True
+    ok   JSONPlugin.process_output is callable
+          got  True
+          want True
+
+=== output_pipeline - nb is a maximum, not a demand ===
+    ok   one block per registered processor
+          got  2
+          want 2
+    ok   numeric exported the 3 asked for
+          got  '1,2,3'
+          want '1,2,3'
+    ok   log exported only the 2 it had
+          got  'b,d'
+          want 'b,d'
+    ok   numeric keeps the remainder
+          got  2
+          want 2
+    ok   log is drained
+          got  0
+          want 0
+
+=== output_pipeline - ranks survive across exports ===
+    ok   second export continues the numbering
+          got  '{"item_3": "4", "item_4": "5"}'
+          want '{"item_3": "4", "item_4": "5"}'
+
+=== Program data_pipeline - exact match with the subject example ===
+    ok   line count
+          got  48
+          want 48
+    ok   line 1
+          got  '=== Code Nexus - Data Pipeline ==='
+          want '=== Code Nexus - Data Pipeline ==='
+    ok   line 2
+          got  ''
+          want ''
+    ok   line 3
+          got  'Initialize Data Stream...'
+          want 'Initialize Data Stream...'
+    ok   line 4
+          got  ''
+          want ''
+    ok   line 5
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 6
+          got  'No processor found, no data'
+          want 'No processor found, no data'
+    ok   line 7
+          got  ''
+          want ''
+    ok   line 8
+          got  'Registering Processors'
+          want 'Registering Processors'
+    ok   line 9
+          got  ''
+          want ''
+    ok   line 10
+          got  "Send first batch of data on stream: ['Hello world', [3.14, -1, 2.71], [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}], 42, ['Hi', 'five']]"
+          want "Send first batch of data on stream: ['Hello world', [3.14, -1, 2.71], [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}], 42, ['Hi', 'five']]"
+    ok   line 11
+          got  ''
+          want ''
+    ok   line 12
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 13
+          got  'Numeric Processor: total 4 items processed, remaining 4 on processor'
+          want 'Numeric Processor: total 4 items processed, remaining 4 on processor'
+    ok   line 14
+          got  'Text Processor: total 3 items processed, remaining 3 on processor'
+          want 'Text Processor: total 3 items processed, remaining 3 on processor'
+    ok   line 15
+          got  'Log Processor: total 2 items processed, remaining 2 on processor'
+          want 'Log Processor: total 2 items processed, remaining 2 on processor'
+    ok   line 16
+          got  ''
+          want ''
+    ok   line 17
+          got  'Send 3 processed data from each processor to a CSV plugin:'
+          want 'Send 3 processed data from each processor to a CSV plugin:'
+    ok   line 18
+          got  'CSV Output:'
+          want 'CSV Output:'
+    ok   line 19
+          got  '3.14,-1,2.71'
+          want '3.14,-1,2.71'
+    ok   line 20
+          got  'CSV Output:'
+          want 'CSV Output:'
+    ok   line 21
+          got  'Hello world,Hi,five'
+          want 'Hello world,Hi,five'
+    ok   line 22
+          got  'CSV Output:'
+          want 'CSV Output:'
+    ok   line 23
+          got  'WARNING: Telnet access! Use ssh instead,INFO: User wil is connected'
+          want 'WARNING: Telnet access! Use ssh instead,INFO: User wil is connected'
+    ok   line 24
+          got  ''
+          want ''
+    ok   line 25
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 26
+          got  'Numeric Processor: total 4 items processed, remaining 1 on processor'
+          want 'Numeric Processor: total 4 items processed, remaining 1 on processor'
+    ok   line 27
+          got  'Text Processor: total 3 items processed, remaining 0 on processor'
+          want 'Text Processor: total 3 items processed, remaining 0 on processor'
+    ok   line 28
+          got  'Log Processor: total 2 items processed, remaining 0 on processor'
+          want 'Log Processor: total 2 items processed, remaining 0 on processor'
+    ok   line 29
+          got  ''
+          want ''
+    ok   line 30
+          got  "Send another batch of data: [21, ['I love AI', 'LLMs are wonderful', 'Stay healthy'], [{'log_level': 'ERROR', 'log_message': '500 server crash'}, {'log_level': 'NOTICE', 'log_message': 'Certificate expires in 10 days'}], [32, 42, 64, 84, 128, 168], 'World hello']"
+          want "Send another batch of data: [21, ['I love AI', 'LLMs are wonderful', 'Stay healthy'], [{'log_level': 'ERROR', 'log_message': '500 server crash'}, {'log_level': 'NOTICE', 'log_message': 'Certificate expires in 10 days'}], [32, 42, 64, 84, 128, 168], 'World hello']"
+    ok   line 31
+          got  ''
+          want ''
+    ok   line 32
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 33
+          got  'Numeric Processor: total 11 items processed, remaining 8 on processor'
+          want 'Numeric Processor: total 11 items processed, remaining 8 on processor'
+    ok   line 34
+          got  'Text Processor: total 7 items processed, remaining 4 on processor'
+          want 'Text Processor: total 7 items processed, remaining 4 on processor'
+    ok   line 35
+          got  'Log Processor: total 4 items processed, remaining 2 on processor'
+          want 'Log Processor: total 4 items processed, remaining 2 on processor'
+    ok   line 36
+          got  ''
+          want ''
+    ok   line 37
+          got  'Send 5 processed data from each processor to a JSON plugin:'
+          want 'Send 5 processed data from each processor to a JSON plugin:'
+    ok   line 38
+          got  'JSON Output:'
+          want 'JSON Output:'
+    ok   line 39
+          got  '{"item_3": "42", "item_4": "21", "item_5": "32", "item_6": "42", "item_7": "64"}'
+          want '{"item_3": "42", "item_4": "21", "item_5": "32", "item_6": "42", "item_7": "64"}'
+    ok   line 40
+          got  'JSON Output:'
+          want 'JSON Output:'
+    ok   line 41
+          got  '{"item_3": "I love AI", "item_4": "LLMs are wonderful", "item_5": "Stay healthy", "item_6": "World hello"}'
+          want '{"item_3": "I love AI", "item_4": "LLMs are wonderful", "item_5": "Stay healthy", "item_6": "World hello"}'
+    ok   line 42
+          got  'JSON Output:'
+          want 'JSON Output:'
+    ok   line 43
+          got  '{"item_2": "ERROR: 500 server crash", "item_3": "NOTICE: Certificate expires in 10 days"}'
+          want '{"item_2": "ERROR: 500 server crash", "item_3": "NOTICE: Certificate expires in 10 days"}'
+    ok   line 44
+          got  ''
+          want ''
+    ok   line 45
+          got  '== DataStream statistics =='
+          want '== DataStream statistics =='
+    ok   line 46
+          got  'Numeric Processor: total 11 items processed, remaining 3 on processor'
+          want 'Numeric Processor: total 11 items processed, remaining 3 on processor'
+    ok   line 47
+          got  'Text Processor: total 7 items processed, remaining 0 on processor'
+          want 'Text Processor: total 7 items processed, remaining 0 on processor'
+    ok   line 48
+          got  'Log Processor: total 4 items processed, remaining 0 on processor'
+          want 'Log Processor: total 4 items processed, remaining 0 on processor'
+
+428 passed, 0 failed, 0 skipped
