@@ -1,9 +1,5 @@
 # MIT License
 
-This licence covers the whole of this repository, including the
-reusable `mazegen` package: anyone, including any later project built
-on it, may reuse, modify and redistribute it under the terms below.
-
 Copyright (c) 2026 Ana Carolina De Morais Chiossi, Leonardo Tamiano
 
 Permission is hereby granted, free of charge, to any person obtaining a

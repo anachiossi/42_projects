@@ -2,17 +2,13 @@
 # One KEY=VALUE pair per line.
 # Lines starting with # are ignored.
 
-# Maze size in cells. 18 wide is 77 columns, the most that fits an
-# 80-column terminal. HEIGHT is 9 because the "42" needs 7 rows plus
-# a cell of margin above and below, and 9 is therefore the smallest
-# maze the program will accept. Drawn, that takes 26 lines: 19 for
-# the maze, 2 above the title, and 5 of messages below.
-WIDTH=18
-HEIGHT=9
+# Maze size in cells. 
+WIDTH=5
+HEIGHT=5
 
 # Entry and exit, written as x,y (col, row)
 ENTRY=0,0
-EXIT=17,8
+EXIT=4,4
 
 OUTPUT_FILE=maze.txt
 
@@ -28,8 +24,3 @@ GEN_ALGORITHM=division
 
 # Shortest path algorithm
 SOLVE_ALGORITHM=astar
-
-# Optional. Frames a second the animations run at. The pace is held
-# whatever a frame costs to draw: a terminal too slow to keep up
-# shows fewer frames rather than taking longer. Leave it out for 30.
-FPS=30

@@ -191,8 +191,7 @@ class MazeGenerator(ABC):
         for cell in self.maze.dead_ends():
             col, row = cell
             shut = [side for side in self.maze.closed_walls(col, row)
-                    if not self._touches_42(cell, side)
-                    and not self._opens_a_room(cell, side)]
+                    if not self._touches_42(cell, side)]
             if shut:
                 self.maze.destroy_wall(col, row, random.choice(shut))
                 yield self.maze
@@ -206,12 +205,9 @@ class MazeGenerator(ABC):
             entry_col, entry_row = self.config.entry_cell
             near = self.maze.region_of(
                 entry_col, entry_row, banned=chokes[0])
-            across = self._closed_across(near)
+            across = [(cell, side) for cell, side in self._closed_across(near)]
             if not across:
                 return  # walled in by the border: nothing to open
-            safe = [(cell, side) for cell, side in across
-                    if not self._opens_a_room(cell, side)]
-            across = safe or across
             (col, row), side = random.choice(across)
             self.maze.destroy_wall(col, row, side)
             yield self.maze
@@ -273,47 +269,6 @@ class MazeGenerator(ABC):
             clock += 1
             stack.append((other, iter(maze.passages(*other))))
         return chokes
-
-    def _room_at(self, col: int, row: int, gap: Edge) -> bool:
-        """Is the 3x3 patch at that corner open throughout?
-
-        ``gap`` is one standing wall to read as though it were already
-        open, so a wall can be judged before it is taken down.
-        """
-        if (col < 0 or row < 0
-                or col + 2 >= self.maze.width or row + 2 >= self.maze.height):
-            return False
-        for step_col in range(3):
-            for step_row in range(3):
-                here = (col + step_col, row + step_row)
-                east = frozenset((here, (here[0] + 1, here[1])))
-                south = frozenset((here, (here[0], here[1] + 1)))
-                if (step_col < 2 and gap != east
-                        and self.maze.get_wall(*here, Direction.E)):
-                    return False
-                if (step_row < 2 and gap != south
-                        and self.maze.get_wall(*here, Direction.S)):
-                    return False
-        return True
-
-    def _opens_a_room(self, cell: Cell, side: Direction) -> bool:
-        """Would opening that wall leave a 3x3 zone with none inside?
-
-        The subject allows no open zone that large. A wall joins two
-        cells and nothing else, so the only patches that could turn
-        into one are those holding both.
-        """
-        other = self.maze.across(cell[0], cell[1], side)
-        if other not in self.maze:
-            return False
-        gap = frozenset((cell, other))
-        cols = (cell[0], other[0])
-        rows = (cell[1], other[1])
-        for col in range(max(cols) - 2, min(cols) + 1):
-            for row in range(max(rows) - 2, min(rows) + 1):
-                if self._room_at(col, row, gap):
-                    return True
-        return False
 
     def _closed_across(self, near: Cells
                        ) -> list[tuple[Cell, Direction]]:

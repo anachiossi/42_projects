@@ -1,6 +1,5 @@
 """Configuration file reading."""
 
-from app.terminal import DEFAULT_FPS, MAX_FPS, MIN_FPS
 from mazegen import Cell, MazeConfig, forty_two
 
 # The maze sizes the program agrees to draw. The subject sets no
@@ -17,14 +16,13 @@ class MazeConfigError(Exception):
     """Error raised when the config file or keys are invalid."""
 
 
-def read_config(path: str) -> tuple[MazeConfig, str, int]:
+def read_config(path: str) -> tuple[MazeConfig, str]:
     """Read a ``KEY=VALUE`` file (ignores comments `#´).
 
-    Gives back the settings the maze is built and walked with, the
-    file the maze is to be written to, and the rate the animations
-    run at. The last two come back on their own because mazegen
-    neither writes nor draws anything: they would be fields nothing
-    in the library could use.
+    Gives back the settings the maze is built and walked with, and the
+    file the maze is to be written to. OUTPUT_FILE comes back on its
+    own because mazegen never writes anything: the name would be a
+    field nothing in the library could use.
     """
     values = _read(path)
 
@@ -36,13 +34,8 @@ def read_config(path: str) -> tuple[MazeConfig, str, int]:
     perfect = _bool(values, "perfect")
     # Optional: absent is not an error, it means "you choose".
     seed = _int(values, "seed") if "seed" in values else None
-    fps = _int(values, "fps") if "fps" in values else DEFAULT_FPS
 
     _check(width, height, entry, exit_cell)
-    if not MIN_FPS <= fps <= MAX_FPS:
-        raise MazeConfigError(
-            f"FPS must be between {MIN_FPS} and {MAX_FPS}, got {fps}"
-        )
 
     config = MazeConfig(
         width=width,
@@ -54,7 +47,7 @@ def read_config(path: str) -> tuple[MazeConfig, str, int]:
         gen_algorithm=values.get("gen_algorithm"),
         solve_algorithm=values.get("solve_algorithm"),
     )
-    return config, output_file, fps
+    return config, output_file
 
 
 def _check(width: int, height: int, entry: Cell, exit_cell: Cell) -> None:
@@ -65,6 +58,15 @@ def _check(width: int, height: int, entry: Cell, exit_cell: Cell) -> None:
                 f"{name} must be between {MIN_SIZE} and "
                 f"{MAX_SIZE}, got {size}"
             )
+    # The subject asks every maze to carry the "42". A maze with no
+    # room for it is refused here rather than drawn without it: the
+    # library still builds one that small, but the program will not.
+    if not forty_two.fits(width, height):
+        raise MazeConfigError(
+            f"a {width}x{height} maze has no room for the 42: "
+            f"WIDTH must be at least {forty_two.MIN_WIDTH} and "
+            f"HEIGHT at least {forty_two.MIN_HEIGHT}"
+        )
     for name, (col, row) in (("ENTRY", entry), ("EXIT", exit_cell)):
         if not (0 <= col < width and 0 <= row < height):
             raise MazeConfigError(
@@ -73,18 +75,6 @@ def _check(width: int, height: int, entry: Cell, exit_cell: Cell) -> None:
             )
     if entry == exit_cell:
         raise MazeConfigError("ENTRY and EXIT must be different cells")
-    # Every cell of the "42" is closed on all four sides, so an end
-    # sitting on one is walled in and the maze has no crossing. Caught
-    # here so the message names the key to fix, rather than leaving the
-    # solver to report an exit it could not reach.
-    for name, cell in (("ENTRY", entry), ("EXIT", exit_cell)):
-        if forty_two.blocks(width, height, cell):
-            col, row = cell
-            raise MazeConfigError(
-                f"{name} (column {col}, row {row}) falls on the 42, "
-                f"whose cells are closed on every side; pick a cell "
-                f"outside it"
-            )
 
 
 def _read(path: str) -> dict[str, str]:

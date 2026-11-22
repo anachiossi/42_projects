@@ -29,6 +29,7 @@ class BFS(MazeSolver):
 
     def _step(self) -> int:
         if not self.queue:
+            # TODO improve error handling
             print("BFS search over, did not find exit cell error")
             return 1
         current_cell, distance = self.queue.popleft()

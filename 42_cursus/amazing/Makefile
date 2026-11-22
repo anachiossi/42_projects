@@ -24,23 +24,7 @@ YELLOW  := $(ESC)[33m
 RED     := $(ESC)[31m
 RESET   := $(ESC)[0m
 
-# What a submitted repository has to carry, and nothing else. The
-# subject asks for README.md, LICENSE.md, a_maze_ing.py, a mazegen-*
-# package file, a configuration file, and everything needed to build
-# that package again; the rest of this list is what those need to run
-# and to pass the checks — app/ and src/ are the program itself,
-# pyproject.toml and setup.cfg build and lint it, the Makefile is
-# required in its own right, and .gitignore is asked for by the
-# common instructions.
-#
-# Left out on purpose: tests/ (the subject says they are not
-# submitted), docs/, subject/, the virtualenv and every cache.
-BUNDLE      := dist
-BUNDLE_FILES := README.md LICENSE.md Makefile pyproject.toml setup.cfg \
-                .gitignore $(MAIN) $(CONFIG)
-BUNDLE_DIRS  := app src/mazegen src/rainbow
-
-.PHONY: install run debug build bundle clean fclean lint help
+.PHONY: install run debug build clean fclean lint test help
 
 # First target of the file, so a bare "make" lands here.
 help:
@@ -57,9 +41,11 @@ help:
 	@printf '  $(BOLD)%-12s$(RESET) %s\n' \
 	'install' 'create $(VENV) and install the dependencies' \
 	'run'     'draw the maze $(CONFIG) asks for' \
-	'debug'   'run it under pdb'
+	'debug'   'run it under pdb' \
+	'build'   'build the mazegen wheel at the repository root'
 	@printf '\n$(YELLOW)$(BOLD)%s$(RESET)\n' 'Test'
 	@printf '  $(BOLD)%-12s$(RESET) %s\n' \
+	'test' 'run the unit tests' \
 	'lint' 'flake8 + mypy --strict'
 	@printf '\n$(RED)$(BOLD)%s$(RESET)\n' 'Clean'
 	@printf '  $(BOLD)%-12s$(RESET) %s\n' \
@@ -72,18 +58,10 @@ install: $(STAMP)
 # Remade when pyproject.toml changes, since it is the only place the
 # dependencies are declared. "-e ." installs the package itself in
 # editable mode, "[dev]" adds the tools the checks need.
-#
-# Both packages under src/ go in: mazegen, the reusable module, and
-# rainbow, the colours the renderer draws with. The import check is
-# what makes that a promise rather than a side effect of how the
-# distribution happens to be laid out — a_maze_ing.py needs both, so a
-# missing one is caught here rather than as a traceback on first run.
 $(STAMP): pyproject.toml
 	$(PYTHON) -m venv $(VENV)
 	$(VPYTHON) -m pip install --upgrade pip
 	$(VPYTHON) -m pip install -e .[dev]
-	$(VPYTHON) -c 'import mazegen, rainbow' \
-	  || { echo 'install failed: mazegen and rainbow are not both importable'; exit 1; }
 	touch $(STAMP)
 
 # The terminal is the renderer, so "run" is one rule again: it draws
@@ -94,6 +72,18 @@ run: $(STAMP)
 debug: $(STAMP)
 	$(VPYTHON) -m pdb $(MAIN) $(CONFIG)
 
+# The reusable module, as the subject asks for it: a pip-installable
+# file named mazegen-* sitting at the root of the repository. `python
+# -m build` writes into dist/; the copy is what the defence installs.
+build: $(STAMP)
+	$(VPYTHON) -m pip install --quiet build
+	$(VPYTHON) -m build
+	cp dist/mazegen-*-py3-none-any.whl .
+	cp dist/mazegen-*.tar.gz .
+
+test: $(STAMP)
+	$(VPYTHON) -m unittest discover -s tests -t .
+
 # --strict is a superset of the five flags the subject requires of
 # this rule; setup.cfg still names them one by one, so the connection
 # to the subject stays visible where the flags actually live.
@@ -102,12 +92,8 @@ lint: $(STAMP)
 	$(VPYTHON) -m mypy . --strict
 
 clean:
-	rm -rf .mypy_cache .pytest_cache build dist
+	rm -rf .mypy_cache .pytest_cache build dist *.egg-info
 	rm -f mazegen-*.whl mazegen-*.tar.gz
-	@# setuptools writes the .egg-info beside the package, so under
-	@# src/ rather than here; a bare *.egg-info at the root misses it.
-	find . -path ./$(VENV) -prune -o \
-	  -type d -name '*.egg-info' -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 # The virtualenv is rebuilt by any target that needs it, so removing it

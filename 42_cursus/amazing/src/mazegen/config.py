@@ -9,7 +9,6 @@ This is not the program's ``config.txt`` reader; that lives in ``app/``
 and translates into this.
 """
 
-from . import forty_two
 from .maze import Cell
 
 
@@ -34,16 +33,6 @@ class MazeConfig:
             if not (0 <= col < width and 0 <= row < height):
                 raise ValueError(
                     f"{label} {cell} falls outside a {width}x{height} maze"
-                )
-        # The 42's cells are closed on all four sides before carving
-        # starts, so an end landing on one is sealed off and the maze
-        # cannot be crossed. Refused here rather than left to the
-        # solver, which would only find the exit unreachable.
-        for label, cell in (("entry", entry_cell), ("exit", exit_cell)):
-            if forty_two.blocks(width, height, cell):
-                raise ValueError(
-                    f"{label} {cell} falls on the 42, whose cells are "
-                    f"closed on every side; pick a cell outside it"
                 )
         self.width = width
         self.height = height

@@ -9,7 +9,7 @@ joins stays joined.
 
 """
 
-from .maze import ALL_WALLS, Cell, Cells, Maze
+from .maze import ALL_WALLS, Cells, Maze
 
 # Cells are (col, row), the order the rest of mazegen is written in.
 # Read as a picture, the glyph is::
@@ -100,18 +100,3 @@ def reserve(maze: Maze) -> Cells:
         maze.build_wall(col, row, ALL_WALLS)
     maze.set_frozen(chosen)
     return chosen
-
-
-def blocks(width: int, height: int, cell: Cell) -> bool:
-    """Whether the 42 would seal ``cell`` in a maze that size.
-
-    The glyph's cells are closed on all four sides, so an entry or an
-    exit landing on one is walled in before the maze is even carved:
-    the entry would have no way out, the exit no way in. Asking this
-    first is what lets a caller refuse the pair with a clear message
-    rather than hand back a maze nobody can cross.
-
-    A maze with no room for the glyph carries none, so nothing is
-    blocked in it.
-    """
-    return fits(width, height) and cell in cells(width, height)
